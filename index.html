@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>Base64 Decoder</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Tailwind CDN（GitHub Pagesでそのまま利用可） -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 min-h-screen flex items-center justify-center">
+  <div class="w-full max-w-2xl bg-white rounded-2xl shadow p-6 space-y-4">
+    <h1 class="text-xl font-semibold text-slate-800">Base64 デコードツール</h1>
+
+    <!-- 入力欄 -->
+    <textarea
+      id="input"
+      class="w-full h-40 p-3 border rounded-lg text-sm font-mono"
+      placeholder="ここにBase64文字列を貼り付けてください"
+    ></textarea>
+
+    <!-- ファイル名 -->
+    <input
+      id="filename"
+      type="text"
+      class="w-full p-2 border rounded-lg text-sm"
+      placeholder="出力ファイル名（例: sample.pdf）"
+    />
+
+    <!-- ボタン -->
+    <div class="flex gap-3">
+      <button
+        onclick="decodeBase64()"
+        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+      >
+        デコードして保存
+      </button>
+      <button
+        onclick="clearAll()"
+        class="px-4 py-2 bg-slate-200 rounded-lg hover:bg-slate-300"
+      >
+        クリア
+      </button>
+    </div>
+
+    <p id="message" class="text-sm text-slate-600"></p>
+  </div>
+
+  <script>
+    function decodeBase64() {
+      const base64 = document.getElementById('input').value.trim();
+      const filename = document.getElementById('filename').value || 'decoded.bin';
+      const message = document.getElementById('message');
+
+      try {
+        // 改行や空白を除去
+        const normalized = base64.replace(/\s/g, '');
+
+        const binary = atob(normalized);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+          bytes[i] = binary.charCodeAt(i);
+        }
+
+        const blob = new Blob([bytes]);
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+
+        URL.revokeObjectURL(url);
+        message.textContent = 'ファイルをダウンロードしました';
+      } catch (e) {
+        message.textContent = 'デコードに失敗しました。Base64文字列を確認してください';
+      }
+    }
+
+    function clearAll() {
+      document.getElementById('input').value = '';
+      document.getElementById('filename').value = '';
+      document.getElementById('message').textContent = '';
+    }
+  </script>
+</body>
+</html>
